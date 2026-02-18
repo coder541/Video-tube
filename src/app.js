@@ -1,5 +1,6 @@
 import express from "express"
 import cors from 'cors'
+import cookieParser from "cookie-parser"
 
 const app = express()
 
@@ -21,4 +22,15 @@ app.use(express.static("public"))
 
 //for handling cookies  : access cookies from user browser
 //  and perform crud on them
+
+app.use(cookieParser())
+
+
+//routes import
+import userRouter from "./routes/user.routes.js"
+
+//as we make the seperate files for router and controller
+//so we have to make the middleware here before we write controller and route in one place
+app.use("/api/v1/users", userRouter)  // this send the user to userRouter and there it decide on which route to send the user
+
 export default app ;

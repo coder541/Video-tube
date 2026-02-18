@@ -5,19 +5,19 @@
 
 // import mongoose from "mongoose";
 // import { DB_NAME } from "./constants";
+
+
 import connectDB from "./db/index.js";
 import dotenv from "dotenv"
 import app from "./app.js";
 
 dotenv.config({
-    path: "./env"
+    path: "./.env"
 })
 connectDB()
 .then(()=>{
     
-    app.on("error", (error)=>{
-     console.log("error", error)
-    })
+   
     app.listen(process.env.PORT || 8000 ,()=>{
      console.log(`SERVER IS RUNNNING AT PORT : ${process.env.PORT}` )
     })

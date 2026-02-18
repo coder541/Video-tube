@@ -1,6 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+import { ApiError } from "../utils/apiError.js";
 
 const userSchema = new Schema(
     {
@@ -16,7 +17,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowecase: true,
+            lowercase: true,
             trim: true, 
         },
         fullName: {
@@ -30,8 +31,16 @@ const userSchema = new Schema(
             required: true,
         },
         coverImage: {
-            type: String, // cloudinary url
-        },
+            url: {
+            type: String,
+            // required: true
+            },
+            public_id: {
+            type: String,
+            required: true
+   }
+}
+,
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,
@@ -52,18 +61,21 @@ const userSchema = new Schema(
     }
 )
 
-userSchema.pre("save",async function (next) {
-    if(!this.isModified("password")) return next()
+userSchema.pre("save",async function () {
+    if(!this.isModified("password")) return 
 
     this.password =await bcrypt.hash(this.password, 10)
-    next()
+    
 })
 
-userSchema.methods.isPasswordGenerator = async function(password){
+userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)
 }
 
 userSchema.methods.generateAccessToken = function(){
+    if (!process.env.ACCESS_TOKEN_SECRET) {
+        throw new ApiError(500, "access_token_secret is missing")
+    }
     return jwt.sign(
         {
          _id : this._id,
@@ -79,16 +91,17 @@ userSchema.methods.generateAccessToken = function(){
 }
 
 userSchema.methods.generateRefreshToken = function(){
+     if (!process.env.REFRESH_TOKEN_SECRET) {
+        throw new ApiError(500, "access_token_secret is missing")
+    }
     return jwt.sign(
         {
-         _id : this._id,
-        email : this.email,
-        username : this.username,
-        fullName : this.fullName
+        _id : this._id,
+       
         },
-        process.env.ACCESS_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         {
-        expiresIn : process.env.ACCESS_TOKEN_EXPIRY
+        expiresIn : process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }
