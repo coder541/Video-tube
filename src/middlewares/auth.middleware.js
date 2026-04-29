@@ -15,7 +15,7 @@ import { application } from "express";
 export const verifyJWT = asyncHandler(async(req, res, next)=>{
   try {
     //Takes token from request
-   const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer","")
+   const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer","").trim()
    
    //If token is missing
    if (!token) {

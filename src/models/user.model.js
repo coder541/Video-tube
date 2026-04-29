@@ -40,7 +40,7 @@ const userSchema = new Schema(
             required: true
    }
 }
-,
+, 
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,
